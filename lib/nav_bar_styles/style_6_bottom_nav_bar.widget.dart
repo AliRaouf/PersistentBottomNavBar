@@ -117,106 +117,121 @@ class _BottomNavStyle6State extends State<_BottomNavStyle6>
   }
 
   @override
-Widget build(final BuildContext context) {
-  final Color selectedItemActiveColor = widget.navBarEssentials
-      .items[widget.navBarEssentials.selectedIndex].activeColorPrimary;
-  final double itemWidth = (MediaQuery.of(context).size.width -
-          ((widget.navBarEssentials.padding.left +
-                  widget.navBarEssentials.padding.right) +
-              (widget.navBarEssentials.margin.left +
-                  widget.navBarEssentials.margin.right))) /
-      widget.navBarEssentials.items.length;
+  Widget build(final BuildContext context) {
+    final Color selectedItemActiveColor = widget.navBarEssentials
+        .items[widget.navBarEssentials.selectedIndex].activeColorPrimary;
+    final double itemWidth = (MediaQuery.of(context).size.width -
+            ((widget.navBarEssentials.padding.left +
+                    widget.navBarEssentials.padding.right) +
+                (widget.navBarEssentials.margin.left +
+                    widget.navBarEssentials.margin.right))) /
+        widget.navBarEssentials.items.length;
 
-  if (widget.navBarEssentials.items.length !=
-      _animationControllerList.length) {
-    _animationControllerList =
-        List<AnimationController>.empty(growable: true);
-    _animationList = List<Animation<double>>.empty(growable: true);
+    if (widget.navBarEssentials.items.length !=
+        _animationControllerList.length) {
+      _animationControllerList =
+          List<AnimationController>.empty(growable: true);
+      _animationList = List<Animation<double>>.empty(growable: true);
 
-    for (int i = 0; i < widget.navBarEssentials.items.length; ++i) {
-      _animationControllerList.add(AnimationController(
-          duration: widget.navBarEssentials.itemAnimationProperties.duration,
-          vsync: this));
-      _animationList.add(Tween(begin: 0.95, end: 1.18)
-          .chain(CurveTween(
-              curve: widget.navBarEssentials.itemAnimationProperties.curve))
-          .animate(_animationControllerList[i]));
+      for (int i = 0; i < widget.navBarEssentials.items.length; ++i) {
+        _animationControllerList.add(AnimationController(
+            duration: widget.navBarEssentials.itemAnimationProperties.duration,
+            vsync: this));
+        _animationList.add(Tween(begin: 0.95, end: 1.18)
+            .chain(CurveTween(
+                curve: widget.navBarEssentials.itemAnimationProperties.curve))
+            .animate(_animationControllerList[i]));
+      }
     }
-  }
-  if (widget.navBarEssentials.selectedIndex != _selectedIndex) {
-    _lastSelectedIndex = _selectedIndex;
-    _selectedIndex = widget.navBarEssentials.selectedIndex;
-    _animationControllerList[_selectedIndex!].forward();
-    _animationControllerList[_lastSelectedIndex!].reverse();
-  }
-
-  return Stack(
-    children: [
-      Container(
-        width: double.infinity,
-        height: widget.navBarEssentials.navBarHeight,
-        padding: widget.navBarEssentials.padding,
-        child: Row(
-          mainAxisAlignment: widget.navBarEssentials.navBarItemsAlignment,
-          children: widget.navBarEssentials.items.map((final item) {
-            final int index = widget.navBarEssentials.items.indexOf(item);
-            return Expanded(
-              child: GestureDetector(
-                onTap: () {
-                  if (index != widget.navBarEssentials.selectedIndex) {
-                    widget.navBarEssentials.items[index]
-                        .iconAnimationController
-                        ?.forward();
-                    widget
-                        .navBarEssentials
-                        .items[widget.navBarEssentials.selectedIndex]
-                        .iconAnimationController
-                        ?.reverse();
-                  }
-                  if (widget.navBarEssentials.items[index].onPressed !=
-                      null) {
-                    widget.navBarEssentials.items[index].onPressed!(
-                        widget.navBarEssentials.selectedScreenBuildContext);
-                  } else {
-                    if (index != _selectedIndex) {
-                      _lastSelectedIndex = _selectedIndex;
-                      _selectedIndex = index;
-                      _animationControllerList[_selectedIndex!].forward();
-                      _animationControllerList[_lastSelectedIndex!]
-                          .reverse();
-                    }
-                    widget.navBarEssentials.onItemSelected?.call(index);
-                  }
-                },
-                child: Container(
-                  color: Colors.transparent,
-                  child: _buildItem(
-                      item,
-                      widget.navBarEssentials.selectedIndex == index,
-                      widget.navBarEssentials.navBarHeight,
-                      index),
-                ),
+    if (widget.navBarEssentials.selectedIndex != _selectedIndex) {
+      _lastSelectedIndex = _selectedIndex;
+      _selectedIndex = widget.navBarEssentials.selectedIndex;
+      _animationControllerList[_selectedIndex!].forward();
+      _animationControllerList[_lastSelectedIndex!].reverse();
+    }
+    return Container(
+      width: double.infinity,
+      height: widget.navBarEssentials.navBarHeight,
+      padding: 0,
+      child: Column(
+        children: <Widget>[
+          // Add the colored border on top of the selected item
+          Row(
+            children: <Widget>[
+              AnimatedContainer(
+                duration:
+                    widget.navBarEssentials.itemAnimationProperties.duration,
+                curve: widget.navBarEssentials.itemAnimationProperties.curve,
+                color: Colors.transparent,
+                width: widget.navBarEssentials.selectedIndex == 0
+                    ? MediaQuery.of(context).size.width * 0.0
+                    : itemWidth * widget.navBarEssentials.selectedIndex,
+                height: 4,
               ),
-            );
-          }).toList(),
-        ),
-      ),
-      Positioned(
-        bottom: 0,
-        left: itemWidth * widget.navBarEssentials.selectedIndex,
-        child: AnimatedContainer(
-          duration:
-              widget.navBarEssentials.itemAnimationProperties.duration,
-          curve: widget.navBarEssentials.itemAnimationProperties.curve,
-          width: itemWidth,
-          height: 4,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: selectedItemActiveColor,
-            borderRadius: BorderRadius.circular(100),
+              Flexible(
+                child: AnimatedContainer(
+                  duration:
+                      widget.navBarEssentials.itemAnimationProperties.duration,
+                  curve: widget.navBarEssentials.itemAnimationProperties.curve,
+                  width: itemWidth,
+                  height: 4,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: selectedItemActiveColor,
+                    borderRadius: BorderRadius.circular(100),
+                  ),
+                ),
+              )
+            ],
           ),
-        ),
+          Expanded(
+            child: Row(
+              mainAxisAlignment: widget.navBarEssentials.navBarItemsAlignment,
+              children: widget.navBarEssentials.items.map((final item) {
+                final int index = widget.navBarEssentials.items.indexOf(item);
+                return Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      if (index != widget.navBarEssentials.selectedIndex) {
+                        widget.navBarEssentials.items[index]
+                            .iconAnimationController
+                            ?.forward();
+                        widget
+                            .navBarEssentials
+                            .items[widget.navBarEssentials.selectedIndex]
+                            .iconAnimationController
+                            ?.reverse();
+                      }
+                      if (widget.navBarEssentials.items[index].onPressed !=
+                          null) {
+                        widget.navBarEssentials.items[index].onPressed!(
+                            widget.navBarEssentials.selectedScreenBuildContext);
+                      } else {
+                        if (index != _selectedIndex) {
+                          _lastSelectedIndex = _selectedIndex;
+                          _selectedIndex = index;
+                          _animationControllerList[_selectedIndex!].forward();
+                          _animationControllerList[_lastSelectedIndex!]
+                              .reverse();
+                        }
+                        widget.navBarEssentials.onItemSelected?.call(index);
+                      }
+                    },
+                    child: Container(
+                      color: Colors.transparent,
+                      child: _buildItem(
+                          item,
+                          widget.navBarEssentials.selectedIndex == index,
+                          widget.navBarEssentials.navBarHeight,
+                          index),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        ],
       ),
-    ],
-  );
+    );
+  }
 }
